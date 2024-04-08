@@ -40,7 +40,7 @@ class tromino_tiling:
         self.solve(n-1, tileMap, chole_x, hole_x_end, chole_y, hole_y_end, fourthhole_x, fourthhole_y)
     def solveTromino(self, n, tile_x, tile_y):
         size = 2**n 
-        if not self.isWithinBounds(tile_x, tile_y, 0, 0, size - 1, size - 1):
+        if not self.withinbounds(tile_x, tile_y, 0, 0, size - 1, size - 1):
             print("Invalid tile cordinations")
         else:
             tileMap = [['hole_x' if i==tile_x and j==tile_y else '0' for j in range(size)] for i in range(size)]
