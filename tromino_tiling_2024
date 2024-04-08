@@ -6,7 +6,7 @@ class tromino_tiling:
     def withinbounds(self, tile_x, tile_y, hole_x_start, hole_x_end, hole_y_start, hole_y_end):
         return (hole_x_start <= tile_x <= hole_x_end) and (hole_y_start <= tile_y <= hole_y_end)
     def placeTile(self, titleMap, hole_x, hole_y , n):
-        titleMap[hole_x][hole_y] = n 
+        tileMap[hole_x][hole_y] = n 
     def placeTiles (self, tileMap, hole_x1, hole_x2, hole_x3, hole_y1, hole_y2, hole_y3, n):
         self.placeTile(tileMap, hole_x1, hole_y1, n)
         self.placeTile(tileMap, hole_x2, hole_y2, n)
