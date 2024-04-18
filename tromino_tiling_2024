@@ -1,64 +1,62 @@
 class tromino_tiling:
 
+    def __init__(self):
+        self.tile_count = 0
+
     def getCenter(self, hole_x_start, hole_x_end, hole_y_start, hole_y_end):
         return ((hole_x_start + hole_x_end) // 2, (hole_y_start + hole_y_end) // 2)
     
     def withinbounds(self, tile_x, tile_y, hole_x_start, hole_x_end, hole_y_start, hole_y_end):
         return (hole_x_start <= tile_x <= hole_x_end) and (hole_y_start <= tile_y <= hole_y_end)
     
-    def placeTile(self, tileMap, hole_x, hole_y , n):
-        tileMap[hole_x][hole_y] = n 
+    def placeTile(self, tileMap, x, y, hole_x, hole_y, n):
+        for i in range(n):
+            for j in range(n):
+                if i != hole_x or j != hole_y:
+                    tileMap[x + i][y + j] = 'tile'
+                    self.tile_count += 1
         
-    def placeTiles (self, tileMap, hole_x1, hole_y1, hole_x2, hole_y2, hole_x3, hole_y3, n):
-        self.placeTile(tileMap, hole_x1, hole_y1, n)
-        self.placeTile(tileMap, hole_x2, hole_y2, n)
-        self.placeTile(tileMap, hole_x3, hole_y3, n)
-        
-    def solve(self, n, tileMap, hole_x_start, hole_x_end, hole_y_start, hole_y_end, tile_x, tile_y):
-        chole_x, chole_y = self.getCenter(hole_x_start, hole_x_end, hole_y_start, hole_y_end)
-        firsthole_x, firsthole_y = chole_x, chole_y
-        secondhole_x, secondhole_y = chole_x + 1, chole_y
-        thirdhole_x, thirdhole_y = chole_x, chole_y + 1
-        fourthhole_x, fourthhole_y = chole_x + 1, chole_y + 1
-        
-        if tile_x <= chole_x:
-            if tile_y <= chole_y:
-                self.placeTiles(tileMap, chole_x, chole_y + 1, chole_x + 1, chole_y + 1, chole_x + 1, chole_y + n, n)
-                firsthole_x, firsthole_y = tile_x, tile_y
-            else:
-                self.placeTiles(tileMap, chole_x, chole_y + 1, chole_x + 1, chole_y, chole_x + 1, chole_y + 1, n)
-                secondhole_x, secondhole_y = tile_x, tile_y
-        else:
-            if tile_y <= chole_y:
-                self.placeTiles(tileMap, chole_x, chole_y, chole_x, chole_y + 1, chole_x + 1, chole_y + 1, n)
-                thirdhole_x, thirdhole_y = tile_x, tile_y
-            else:
-                self.placeTiles(tileMap, chole_x, chole_y, chole_x + 1, chole_y, chole_x, chole_y + 1, n)
-                fourthhole_x, fourthhole_y = tile_x, tile_y
-                
-        if n == 1: 
+    def solve(self, n, tileMap, hole_x_start, hole_x_end, hole_y_start, hole_y_end, hole_x, hole_y):
+        if n == 1:
             return
-        else:
-            self.solve(n-1, tileMap, hole_x_start, chole_x, hole_y_start, chole_y, firsthole_x, firsthole_y)
-            self.solve(n-1, tileMap, hole_x_start, chole_x, hole_y_end, chole_y, secondhole_x, secondhole_y)
-            self.solve(n-1, tileMap, chole_x, hole_x_start, chole_y, hole_y_end, thirdhole_x, thirdhole_y)
-            self.solve(n-1, tileMap, chole_x, hole_x_end, chole_y, hole_y_end, fourthhole_x, fourthhole_y)
-            
-    def solveTromino(self, n, tile_x, tile_y):
-        size = 2**n 
-        if not self.withinbounds(tile_x, tile_y, 0, 0, size - 1, size - 1):
-            print("Invalid tile coordinates")
-        else:
-            tileMap = [['hole_x' if i==tile_x and j==tile_y else '0' for j in range(size)] for i in range(size)]
-            self.printMap(tileMap)
-            self.solve(n, tileMap, 0, size-1, 0, size-1, tile_x, tile_y)
-            self.printMap(tileMap)
-            
-    def printMap(self, tileMap):
-        size = len(tileMap)
-        print()
-        for i in range(size):
-            for j in range(size):
-                print(tileMap[i][j], end="")
-            print()
-        print()
+        size = 2 ** (n - 1)
+        chole_x, chole_y = self.getCenter(hole_x_start, hole_x_end, hole_y_start, hole_y_end)
+        if hole_x <= chole_x and hole_y <= chole_y:
+            self.placeTile(tileMap, chole_x, chole_y, chole_x, chole_y, n)
+            self.solve(n - 1, tileMap, hole_x_start, chole_x, hole_y_start, chole_y, hole_x, hole_y)
+            self.solve(n - 1, tileMap, chole_x + 1, hole_x_end, hole_y_start, chole_y, chole_x, chole_y)
+            self.solve(n - 1, tileMap, hole_x_start, chole_x, chole_y + 1, hole_y_end, chole_x, chole_y)
+            self.solve(n - 1, tileMap, chole_x + 1, hole_x_end, chole_y + 1, hole_y_end, chole_x, chole_y)
+        elif hole_x <= chole_x and hole_y > chole_y:
+            self.placeTile(tileMap, chole_x, chole_y, chole_x, chole_y + 1, n)
+            self.solve(n - 1, tileMap, hole_x_start, chole_x, hole_y_start, chole_y, chole_x, chole_y)
+            self.solve(n - 1, tileMap, chole_x + 1, hole_x_end, hole_y_start, chole_y, chole_x, chole_y)
+            self.solve(n - 1, tileMap, hole_x_start, chole_x, chole_y + 1, hole_y_end, hole_x, hole_y)
+            self.solve(n - 1, tileMap, chole_x + 1, hole_x_end, chole_y + 1, hole_y_end, chole_x, chole_y + 1)
+        elif hole_x > chole_x and hole_y <= chole_y:
+            self.placeTile(tileMap, chole_x, chole_y, chole_x + 1, chole_y, n)
+            self.solve(n - 1, tileMap, hole_x_start, chole_x, hole_y_start, chole_y, hole_x, hole_y)
+            self.solve(n - 1, tileMap, chole_x + 1, hole_x_end, hole_y_start, chole_y, chole_x + 1, chole_y)
+            self.solve(n - 1, tileMap, hole_x_start, chole_x, chole_y + 1, hole_y_end, chole_x, chole_y)
+            self.solve(n - 1, tileMap, chole_x + 1, hole_x_end, chole_y + 1, hole_y_end, chole_x + 1, chole_y)
+        elif hole_x > chole_x and hole_y > chole_y:
+            self.placeTile(tileMap, chole_x, chole_y, chole_x + 1, chole_y + 1, n)
+            self.solve(n - 1, tileMap, hole_x_start, chole_x, hole_y_start, chole_y, hole_x, hole_y)
+            self.solve(n - 1, tileMap, chole_x + 1, hole_x_end, hole_y_start, chole_y, chole_x + 1, chole_y)
+            self.solve(n - 1, tileMap, hole_x_start, chole_x, chole_y + 1, hole_y_end, chole_x, chole_y + 1)
+            self.solve(n - 1, tileMap, chole_x + 1, hole_x_end, chole_y + 1, hole_y_end, chole_x + 1, chole_y + 1)
+    
+    def tromino_tiling(self, n, hole_x, hole_y):
+        tileMap = [['hole' for _ in range(2**n)] for _ in range(2**n)]
+        tileMap[hole_x][hole_y] = 'hole'
+        self.solve(n, tileMap, 0, 2**n - 1, 0, 2**n - 1, hole_x, hole_y)
+        for row in tileMap:
+            print(row)
+
+# Example usage:
+# n = 3
+# hole_x = 1
+# hole_y = 1
+# t = tromino_tiling()
+# t.tromino_tiling(n, hole_x, hole_y)
+# print("Total number of tiles placed:", t.tile_count)
